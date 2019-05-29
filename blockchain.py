@@ -27,6 +27,16 @@ time stamp will be different.Intrusion detected.
 """
 from collections import deque
 from random
+       
+import hashlib
+import json
+from time import time
+from urllib.parse import urlparse
+from uuid import uuid4
+
+import requests
+from flask import Flask, jsonify, request
+
 
 class LocalBoard:
     def __init__(self, signal=False, state="Neutral"):
@@ -57,7 +67,7 @@ class Node:
         initial =""
         res = [initial.join(i) for i in content][0]
         return res
-    
+"""    
 class BlockChain:
     def __init__(self, data, signal=False, state="Neutral"):
         self.states = ["Intrusion","Neutral"]
@@ -89,17 +99,7 @@ class BlockChain:
     
     def countChain(self):
         return len(self.chain)
-        
-import hashlib
-import json
-from time import time
-from urllib.parse import urlparse
-from uuid import uuid4
-
-import requests
-from flask import Flask, jsonify, request
-
-
+"""
 class Blockchain:
     def __init__(self):
         self.current_transactions = []
