@@ -1,10 +1,10 @@
 ##ENGR 370
 ##Software-Based Approach with Blockchain to
 ##detect node compromise in distributed ledger IoT technology
+## Version 1.0.0 - Initial release
 
-
-"""
-Project Requiremnents:
+##THIS MESSAGE WILL APPEAR ON HOME PAGE OF THE SIMULATOR
+project_requiremnents="""
 Blockchain(BC) sensor --> one randomly placed redundant sensor in the chain, lets call it X. 
 Local Board (LB)
 
@@ -21,26 +21,25 @@ Intrusion detected.
 
 
 3. Intrusion caused X, and LB be same, because LB is also detected.
-Signal from X sensor and LB sensor might be different, but
-time stamp will be different.Intrusion detected.
-
+Signal from X sensor and LB sensor might be different/same, but
+time stamp will be different for sure. Intrusion detected.
 """
 from collections import deque
-from random
+from random import randint
        
 import hashlib
 import json
 from time import time
 from urllib.parse import urlparse
 from uuid import uuid4
+import os
 
 import requests
 from flask import Flask, jsonify, request
 
-
 class LocalBoard:
     def __init__(self, signal=False, state="Neutral"):
-        self.states=["Intrusion","Neutral"]
+        self.states=["Compromised","Neutral"]
         self.signal = signal
         self.state = state
 
@@ -100,11 +99,15 @@ class BlockChain:
     def countChain(self):
         return len(self.chain)
 """
-class Blockchain:
-    def __init__(self):
+class Blockchain(LocalBoard):
+    def __init__(self, LocalBoard):
         self.current_transactions = []
         self.chain = []
         self.nodes = set()
+        self.intrusion_detected = False # X sensor is the redundant sensor
+        self.state = "Neutral" #"Compromised"
+        self.vault = []
+        self.local_board_state = LocalBoard.state 
 
         # Create the genesis block
         self.new_block(previous_hash='1', proof=100)
@@ -124,13 +127,34 @@ class Blockchain:
             self.nodes.add(parsed_url.path)
         else:
             raise ValueError('Invalid URL')
+    
+    def get_local_board_state(self):
+        return self.local_board_state
 
+    def is_intrusion_detected(self, signal):
+        """
+        Determine if there is an intrusion
 
+        :param chain: A blockchain, 
+        :param vault: A vault in the blockchain which represents a redundant sensor 
+                    randomly attached to a node.
+        :return: True if there is intrusion detected , False if not
+        """
+        if self.state == "Compromised": #not self.valid_chain(self.chain): ##Case 1
+            self.intrusion_detected =  True #Intrusion Detected
+        elif self.vault != signal: ##Case 2
+            self.intrusion_detected =  True #Intrusion Detected
+        elif self.get_local_board_state()!=self.vault: ##Case 3
+            self.intrusion_detected =  True #Intrusion Detected
+        self.intrusion_detected = False
+        return self.intrusion_detected #Intrusion Not Detected
+      
     def valid_chain(self, chain):
         """
         Determine if a given blockchain is valid
 
         :param chain: A blockchain
+        --:param X_signal: Sensor Signal by the X sensor--
         :return: True if valid, False if not
         """
 
@@ -205,6 +229,7 @@ class Blockchain:
             'transactions': self.current_transactions,
             'proof': proof,
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
+            'intrusion_detected':self.is_intrusion_detected(signal=[])
         }
 
         # Reset the current list of transactions
@@ -289,9 +314,24 @@ app = Flask(__name__)
 # Generate a globally unique address for this node
 node_identifier = str(uuid4()).replace('-', '')
 
-# Instantiate the Blockchain
-blockchain = Blockchain()
+# Instantiate the Local Board
+localBoard = LocalBoard()
 
+# Instantiate the Blockchain
+blockchain = Blockchain(localBoard)
+
+@app.route('/', methods=['GET'])
+def index_pages():
+    response ={
+        'connection_status':'connected',
+        'return_code':200,
+        'welcome_message': """software-Based Approach with Blockchain to 
+                            detect node compromise in distributed ledger IoT technology """,
+        'version': 'Version 1.0.0 - Initial Release',
+        'license': 'MIT License',
+        'requirements':project_requiremnents
+    }
+    return render_template(jsonify(response),title='Home')
 
 @app.route('/mine', methods=['GET'])
 def mine():
@@ -317,6 +357,7 @@ def mine():
         'transactions': block['transactions'],
         'proof': block['proof'],
         'previous_hash': block['previous_hash'],
+        'intrusion_detected':block['intrusion_detected']
     }
     return jsonify(response), 200
 
@@ -386,8 +427,9 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
-    parser.add_argument('-p', '--port', default=5000, type=int, help='port to listen on')
+    default_port = int(os.environ.get('PORT', 5000))
+    parser.add_argument('-p', '--port', default=default_port, type=int, help='port to listen on')
     args = parser.parse_args()
     port = args.port
-
-    app.run(host='127.0.0.1', port=port)
+    
+    app.run(port=port, debug=False)
