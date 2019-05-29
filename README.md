@@ -1,8 +1,9 @@
-# Learn Blockchains by Building One
+
+## Blockchain based solution to Distributed Ledger Technology Compromises -- VIP Summer 2019 ##
+VIP 2019 Summer Term Repo for Blockchain Solution Simulation 
 
 [![Build Status](https://travis-ci.org/dvf/blockchain.svg?branch=master)](https://travis-ci.org/dvf/blockchain)
 
-This is the source code for my post on [Building a Blockchain](https://medium.com/p/117428612f46). 
 
 ## Installation
 
@@ -62,6 +63,3 @@ https://www.visualstudio.com/vs/
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
-## blockchain ##
-VIP 2019 Summer Term Repo for Blockchain Simulation 
