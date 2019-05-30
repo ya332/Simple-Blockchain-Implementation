@@ -325,13 +325,12 @@ def index_pages():
     response ={
         'connection_status':'connected',
         'return_code':200,
-        'welcome_message': """Hardware-Based Approach in Blockchain to 
-                            detect node compromise in distributed ledger IoT technology """,
+        'welcome_message': """Hardware-Based Approach in Blockchain to detect node compromise in distributed ledger IoT technology """,
         'version': 'Version 1.0.0 - Initial Release',
         'license': 'MIT License',
         'requirements':project_requiremnents
-    # }
-    return render_template(jsonify(response),title='Home')
+    }
+    return jsonify(response)
 
 @app.route('/mine', methods=['GET'])
 def mine():
