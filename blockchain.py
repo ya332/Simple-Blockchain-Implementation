@@ -4,7 +4,7 @@
 ## Version 1.0.0 - Initial release
 
 ##THIS MESSAGE WILL APPEAR ON HOME PAGE OF THE SIMULATOR
-project_requiremnents="""
+project_requirements="""
 Blockchain(BC) sensor --> one randomly placed redundant sensor in the chain, lets call it X. 
 Local Board (LB)
 
@@ -328,7 +328,7 @@ def index_pages():
         'welcome_message': """Hardware-Based Approach in Blockchain to detect node compromise in distributed ledger IoT technology """,
         'version': 'Version 1.0.0 - Initial Release',
         'license': 'MIT License',
-        'requirements':project_requiremnents
+        'requirements':project_requirements.replace("\r\n","")
     }
     return jsonify(response)
 
